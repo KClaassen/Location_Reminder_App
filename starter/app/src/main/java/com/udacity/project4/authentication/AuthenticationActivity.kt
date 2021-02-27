@@ -66,12 +66,12 @@ class AuthenticationActivity : AppCompatActivity() {
                     "Successfully signed in user " +
                             "${FirebaseAuth.getInstance().currentUser?.displayName}!"
                 )
+                navigateToReminderActivity()
             } else {
                 // Sign in failed. If response is null the user canceled the sign-in flow using
                 // the back button. Otherwise check response.getError().getErrorCode() and handle
                 // the error.
                 Log.i(TAG, "Sign in unsuccessful ${response?.error?.errorCode}")
-                navigateToReminderActivity()
                 return
             }
         }
@@ -89,7 +89,7 @@ class AuthenticationActivity : AppCompatActivity() {
         startActivityForResult(
             AuthUI.getInstance().createSignInIntentBuilder().setAvailableProviders(
                 providers
-            ).build(), SIGN_IN_RESULT_CODE
+            ).setIsSmartLockEnabled(false).build(), SIGN_IN_RESULT_CODE
         )
     }
 }

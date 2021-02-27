@@ -1,6 +1,5 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
