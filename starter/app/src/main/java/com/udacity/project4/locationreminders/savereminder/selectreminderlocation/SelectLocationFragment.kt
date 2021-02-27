@@ -145,19 +145,18 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private fun isPermissionGranted() : Boolean {
         return context?.let {
             ContextCompat.checkSelfPermission(
-                    it,
-                Manifest.permission.ACCESS_FINE_LOCATION)
+                    it, Manifest.permission.ACCESS_FINE_LOCATION)
         } === PackageManager.PERMISSION_GRANTED
+        Log.d("location permissions", "granted, isPermissionGranted")
     }
 
     @SuppressLint("MissingPermission")
     private fun enableMyLocation() {
         if (isPermissionGranted()) {
             map.setMyLocationEnabled(true)
-        }
-        else {
-            ActivityCompat.requestPermissions(
-                        context as Activity,
+            Log.d("location permissions", "granted")
+        } else {
+            requestPermissions(
                         arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
                         REQUEST_LOCATION_PERMISSION
                 )}
