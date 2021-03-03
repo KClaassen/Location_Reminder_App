@@ -22,7 +22,7 @@ import com.google.android.gms.location.GeofencingEvent
 class GeofenceBroadcastReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
 
-//TODO: implement the onReceive method to receive the geofencing events at the background
+// implement the onReceive method to receive the geofencing events at the background
         if (intent.action == GeofenceTransitionsJobIntentService.ACTION_GEOFENCE_EVENT) {
             //Delegate to the Job Intent Service
             GeofenceTransitionsJobIntentService.enqueueWork(context, intent)
