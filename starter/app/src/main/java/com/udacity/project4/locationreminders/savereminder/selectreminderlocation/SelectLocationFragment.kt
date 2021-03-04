@@ -12,6 +12,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -41,12 +42,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION = 1
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
+    private var poi: PointOfInterest? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+            inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         binding =
-            DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
+                DataBindingUtil.inflate(inflater, R.layout.fragment_select_location, container, false)
 
         binding.viewModel = _viewModel
         binding.lifecycleOwner = this
@@ -64,7 +66,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         // call this function after the user confirms on the selected location
-        onLocationSelected()
+        binding.saveButton.setOnClickListener {
+            onLocationSelected()
+        }
+
+        // set PoiClickListener in onCreaveView and set value for poi
+        map.setOnPoiClickListener {
+            setPoiClick(map)
+        }
 
         return binding.root
     }
@@ -72,7 +81,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
-        val latitude =  51.271712
+        val latitude = 51.271712
         val longitude = 5.571989
         val zoomLevel = 15f
 
@@ -85,7 +94,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         enableMyLocation()
     }
 
-    private fun setMapLongClick(map:GoogleMap) {
+    private fun setMapLongClick(map: GoogleMap) {
         map.setOnMapClickListener { latLng ->
             val snippet = String.format(
                     Locale.getDefault(), "Lat: %1$.5f, Long $2$.5f",
@@ -118,7 +127,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
-
+        if (poi != null) {
+            // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
+            _viewModel.selectedPOI
+            _viewModel.reminderTitle
+            _viewModel.latitude
+            _viewModel.longitude
+            _viewModel.navigationCommand.postValue(NavigationCommand.Back)
+        } else {
+            Toast.makeText(context, "No location selected", Toast.LENGTH_SHORT).show()
+        }
     }
 
 
@@ -147,7 +165,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         else -> super.onOptionsItemSelected(item)
     }
 
-    private fun isPermissionGranted() : Boolean {
+    private fun isPermissionGranted(): Boolean {
         return context?.let {
             Log.d("location permissions", "granted, isPermissionGranted")
             ContextCompat.checkSelfPermission(
@@ -162,9 +180,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             Log.d("location permissions", "granted")
         } else {
             requestPermissions(
-                        arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
-                        REQUEST_LOCATION_PERMISSION
-                )}
+                    arrayOf<String>(Manifest.permission.ACCESS_FINE_LOCATION),
+                    REQUEST_LOCATION_PERMISSION
+            )
+        }
     }
 
     override fun onRequestPermissionsResult(
