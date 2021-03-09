@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentSender
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -42,7 +43,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private val REQUEST_LOCATION_PERMISSION = 1
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
-    private var poi: PointOfInterest? = null
+    private lateinit var pointOfInterest: PointOfInterest
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -66,14 +67,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         // call this function after the user confirms on the selected location
-        binding.saveButton.setOnClickListener {
-            onLocationSelected()
-        }
+//        binding.saveButton.setOnClickListener {
+//            onLocationSelected()
+//        }
 
         // set PoiClickListener in onCreaveView and set value for poi
-        map.setOnPoiClickListener {
-            setPoiClick(map)
-        }
+//        map.setOnPoiClickListener {
+//            setPoiClick(map)
+//        }
 
         return binding.root
     }
@@ -90,8 +91,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         map.addMarker(MarkerOptions().position(homeLatLng))
 
         setMapLongClick(map)
-        setPoiClick(map)
+        setPoiClickListener(map)
         enableMyLocation()
+        
+        onLocationSelected()
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -111,13 +114,28 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         }
     }
 
-    private fun setPoiClick(map: GoogleMap) {
+    private fun setPoiClickListener(map: GoogleMap) {
+
         map.setOnPoiClickListener { poi ->
+
+            map.clear()
+            pointOfInterest = poi
+
             val poiMarker = map.addMarker(
                     MarkerOptions()
                             .position(poi.latLng)
                             .title(poi.name)
             )
+
+//            map.addCircle(
+//                    CircleOptions()
+//                            .center(poi.latLng)
+//                            .radius(200.0)
+//                            .strokeColor(Color.argb(255,255,0,0))
+//                            .fillColor(Color.argb(64,255,0,0)).strokeWidth(4F)
+//
+//            )
+
             poiMarker.showInfoWindow()
         }
     }
@@ -127,15 +145,20 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
-        if (poi != null) {
-            // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
-            _viewModel.selectedPOI
-            _viewModel.reminderTitle
-            _viewModel.latitude
-            _viewModel.longitude
-            _viewModel.navigationCommand.postValue(NavigationCommand.Back)
-        } else {
-            Toast.makeText(context, "No location selected", Toast.LENGTH_SHORT).show()
+
+        binding.saveButton.setOnClickListener {
+
+            if (this::pointOfInterest.isInitialized) {
+                // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
+                _viewModel.selectedPOI.value = pointOfInterest
+                _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
+                _viewModel.latitude.value = pointOfInterest.latLng.latitude
+                _viewModel.longitude.value = pointOfInterest.latLng.longitude
+                _viewModel.navigationCommand.value = NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
+                Log.d("onLocationSelected", "Location is selected")
+            } else {
+                Toast.makeText(context, "Please select a location", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
