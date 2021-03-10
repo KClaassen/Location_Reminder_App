@@ -30,9 +30,11 @@ import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import kotlinx.android.synthetic.main.fragment_save_reminder.*
+import kotlinx.android.synthetic.main.it_reminder.*
 import org.koin.android.ext.android.inject
 import java.util.*
 
@@ -66,10 +68,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         // put a marker to location that the user selected
 
 
-        // call this function after the user confirms on the selected location
-//        binding.saveButton.setOnClickListener {
-//            onLocationSelected()
-//        }
+        //call this function after the user confirms on the selected location
+        binding.saveButton.setOnClickListener {
+            onLocationSelected()
+        }
 
         // set PoiClickListener in onCreaveView and set value for poi
 //        map.setOnPoiClickListener {
@@ -93,7 +95,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setMapLongClick(map)
         setPoiClickListener(map)
         enableMyLocation()
-        
+
         onLocationSelected()
     }
 
@@ -146,19 +148,15 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
 
-        binding.saveButton.setOnClickListener {
-
-            if (this::pointOfInterest.isInitialized) {
-                // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
-                _viewModel.selectedPOI.value = pointOfInterest
-                _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
-                _viewModel.latitude.value = pointOfInterest.latLng.latitude
-                _viewModel.longitude.value = pointOfInterest.latLng.longitude
-                _viewModel.navigationCommand.value = NavigationCommand.To(SelectLocationFragmentDirections.actionSelectLocationFragmentToSaveReminderFragment())
-                Log.d("onLocationSelected", "Location is selected")
-            } else {
-                Toast.makeText(context, "Please select a location", Toast.LENGTH_SHORT).show()
-            }
+        if (this::pointOfInterest.isInitialized) {
+            // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
+            _viewModel.selectedPOI.value = pointOfInterest
+            _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
+            _viewModel.latitude.value = pointOfInterest.latLng.latitude
+            _viewModel.longitude.value = pointOfInterest.latLng.longitude
+            _viewModel.navigationCommand.value = NavigationCommand.Back
+        } else {
+            Toast.makeText(context, R.string.select_location, Toast.LENGTH_SHORT).show()
         }
     }
 
