@@ -69,9 +69,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         //call this function after the user confirms on the selected location
-        binding.saveButton.setOnClickListener {
-            onLocationSelected()
-        }
+//        binding.saveButton.setOnClickListener {
+//            onLocationSelected()
+//        }
 
         // set PoiClickListener in onCreaveView and set value for poi
 //        map.setOnPoiClickListener {
@@ -96,7 +96,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         setPoiClickListener(map)
         enableMyLocation()
 
-        onLocationSelected()
+        //onLocationSelected()
     }
 
     private fun setMapLongClick(map: GoogleMap) {
@@ -106,6 +106,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     latLng.latitude,
                     latLng.longitude
             )
+
+            binding.saveButton.setOnClickListener {
+                _viewModel.latitude.value = latLng.latitude
+                _viewModel.longitude.value = latLng.longitude
+                _viewModel.reminderSelectedLocationStr.value = getString(R.string.dropped_pin)
+                _viewModel.navigationCommand.value = NavigationCommand.Back
+            }
+
             map.addMarker(
                     MarkerOptions()
                             .position(latLng)
@@ -143,21 +151,21 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    private fun onLocationSelected() {
+    private fun onLocationSelected(poi: PointOfInterest) {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
 
-        if (this::pointOfInterest.isInitialized) {
+       // if (this::pointOfInterest.isInitialized) {
             // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
-            _viewModel.selectedPOI.value = pointOfInterest
+            _viewModel.selectedPOI.value = poi
             _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
-            _viewModel.latitude.value = pointOfInterest.latLng.latitude
-            _viewModel.longitude.value = pointOfInterest.latLng.longitude
+            _viewModel.latitude.value = poi.latLng.latitude
+            _viewModel.longitude.value = poi.latLng.longitude
             _viewModel.navigationCommand.value = NavigationCommand.Back
-        } else {
-            Toast.makeText(context, R.string.select_location, Toast.LENGTH_SHORT).show()
-        }
+//        } else {
+//            Toast.makeText(context, R.string.select_location, Toast.LENGTH_SHORT).show()
+//        }
     }
 
 
