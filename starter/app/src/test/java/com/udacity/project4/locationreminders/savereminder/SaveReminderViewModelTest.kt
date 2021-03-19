@@ -6,12 +6,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.getOrAwaitValue
+import com.udacity.project4.locationreminders.reminderslist.ReminderDataItem
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.CoreMatchers
+import org.hamcrest.CoreMatchers.notNullValue
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
 import org.junit.Before
@@ -26,61 +28,77 @@ class SaveReminderViewModelTest {
 
 
     //TODO: provide testing to the SaveReminderView and its live data objects
+    private lateinit var fakeDataSource: FakeDataSource
+    private lateinit var saveReminderViewModel: SaveReminderViewModel
+
+
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
     val mainCoroutineRule = MainCoroutineRule()
 
-    private lateinit var fakeDataSource: FakeDataSource
-    private lateinit var remindersListViewModel: RemindersListViewModel
-
     @Before
     fun setupViewModel() {
         stopKoin()
 
         fakeDataSource = FakeDataSource()
-        remindersListViewModel = RemindersListViewModel(
+        saveReminderViewModel = SaveReminderViewModel(
                 ApplicationProvider.getApplicationContext(),
                 fakeDataSource
         )
+        runBlocking{ fakeDataSource.deleteAllReminders()}
+    }
+
+    private fun getReminder(): ReminderDataItem {
+        return ReminderDataItem(
+                title = "title",
+                description = "desc",
+                location = "loc",
+                latitude = 51.271712,
+                longitude = 5.571989)
     }
 
     @Test
-    fun loadRemindersWhenRemindersAreUnavailable_callErrorToDisplay() = runBlockingTest {
+    fun show_loading() {
 
-        fakeDataSource.setShouldReturnError(true)
-        remindersListViewModel.loadReminders()
-        assertThat(remindersListViewModel.showSnackBar.getOrAwaitValue(), CoreMatchers.`is`("Reminders not found"))
-
-    }
-
-    @Test
-    fun loadReminders_loading() {
-        // Pause dispatcher so we can verify initial values
+        val reminder = getReminder()
+        // The loading animation appeared
         mainCoroutineRule.pauseDispatcher()
 
-        // Load the reminders in the viewmodel
-        remindersListViewModel.loadReminders()
+        saveReminderViewModel.validateAndSaveReminder(reminder)
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(true))
 
-        // Then progress indicator is shown
-        assertThat(remindersListViewModel.showLoading.getOrAwaitValue(), `is`(true))
-
-        // Execute pending coroutines actions
+        // The loading animation disappeared
         mainCoroutineRule.resumeDispatcher()
-
-        // Then progress indicator is hidden
-        assertThat(remindersListViewModel.showLoading.getOrAwaitValue(), `is`(false))
-        assertThat(remindersListViewModel.showNoData.getOrAwaitValue(), `is`(false))
+        assertThat(saveReminderViewModel.showLoading.getOrAwaitValue(), CoreMatchers.`is`(false))
     }
 
     @Test
-    fun loadReminders_withoutData() = runBlockingTest {
-        fakeDataSource.deleteAllReminders()
-        remindersListViewModel.loadReminders()
+    fun saveReminder_ShowToast() = runBlockingTest {
+        val reminder = getReminder()
+        // When saving a reminder
+        saveReminderViewModel.saveReminder(reminder)
 
-        assertThat(remindersListViewModel.showNoData.getOrAwaitValue(), `is`(true))
+        // Then we get displayed a Toast with Success message
+        assertThat(saveReminderViewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved"))
     }
 
+    @Test
+    fun saveReminder_withoutTitle() {
+        // Create Reminder without Title
+        val reminder = ReminderDataItem(
+                title = "",
+                description = "desc",
+                location = "loc",
+                latitude = 51.271712,
+                longitude = 5.571989)
+
+        // When saving reminder
+        saveReminderViewModel.saveReminder(reminder)
+
+        // Then show Snackbar with message
+        assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
+        }
 
 }
