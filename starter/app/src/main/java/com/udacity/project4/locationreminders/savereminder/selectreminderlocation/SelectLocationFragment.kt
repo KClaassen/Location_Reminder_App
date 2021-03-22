@@ -69,9 +69,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
 
         //call this function after the user confirms on the selected location
-//        binding.saveButton.setOnClickListener {
-//            onLocationSelected()
-//        }
+        binding.saveButton.setOnClickListener {
+            onLocationSelected(pointOfInterest)
+        }
 
         // set PoiClickListener in onCreaveView and set value for poi
 //        map.setOnPoiClickListener {
@@ -163,6 +163,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             _viewModel.latitude.value = poi.latLng.latitude
             _viewModel.longitude.value = poi.latLng.longitude
             _viewModel.navigationCommand.value = NavigationCommand.Back
+        Log.i("locationSelected", "Location is selected")
 //        } else {
 //            Toast.makeText(context, R.string.select_location, Toast.LENGTH_SHORT).show()
 //        }

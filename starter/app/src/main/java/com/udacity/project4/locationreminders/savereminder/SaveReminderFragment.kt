@@ -68,6 +68,8 @@ class SaveReminderFragment : BaseFragment() {
         }
 
         binding.saveReminder.setOnClickListener {
+            Log.i("SaveReminder", "onClick")
+
             val title = _viewModel.reminderTitle.value
             val description = _viewModel.reminderDescription.value
             val location = _viewModel.reminderSelectedLocationStr.value
@@ -88,6 +90,7 @@ class SaveReminderFragment : BaseFragment() {
             _viewModel.validateAndSaveReminder(reminderData)
             if (_viewModel.validateEnteredData(reminderData)) {
                 addGeofenceForReminder(reminderData)
+                Log.i("SaveReminder", "Added Reminder to Geofence")
             }
 
         }
