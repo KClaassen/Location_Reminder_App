@@ -1,8 +1,11 @@
 package com.udacity.project4.locationreminders.savereminder
 
+import android.os.Build
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.google.common.truth.Truth
+import com.udacity.project4.R
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
 import com.udacity.project4.locationreminders.getOrAwaitValue
@@ -21,7 +24,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.koin.core.context.stopKoin
+import org.robolectric.annotation.Config
 
+@Config(sdk = [Build.VERSION_CODES.O])
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
 class SaveReminderViewModelTest {
@@ -33,10 +38,10 @@ class SaveReminderViewModelTest {
 
 
     @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @get:Rule
-    val mainCoroutineRule = MainCoroutineRule()
+    var mainCoroutineRule = MainCoroutineRule()
 
     @Before
     fun setupViewModel() {
@@ -60,7 +65,7 @@ class SaveReminderViewModelTest {
     }
 
     @Test
-    fun show_loading() {
+    fun show_loading() = runBlockingTest{
 
         val reminder = getReminder()
         // The loading animation appeared
@@ -81,11 +86,11 @@ class SaveReminderViewModelTest {
         saveReminderViewModel.saveReminder(reminder)
 
         // Then we get displayed a Toast with Success message
-        assertThat(saveReminderViewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved"))
+        assertThat(saveReminderViewModel.showToast.getOrAwaitValue(), `is`("Reminder Saved !"))
     }
 
     @Test
-    fun saveReminder_withoutTitle() {
+    fun saveReminder_withoutTitle() = runBlockingTest {
         // Create Reminder without Title
         val reminder = ReminderDataItem(
                 title = "",
@@ -98,7 +103,8 @@ class SaveReminderViewModelTest {
         saveReminderViewModel.saveReminder(reminder)
 
         // Then show Snackbar with message
-        assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue(), notNullValue())
+        Truth.assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue()).isEqualTo(R.string.err_enter_title)
         }
+
 
 }

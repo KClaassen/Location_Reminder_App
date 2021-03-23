@@ -2,6 +2,7 @@ package com.udacity.project4.locationreminders.reminderslist
 
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
@@ -44,31 +45,34 @@ import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.dsl.module
+import org.koin.test.AutoCloseKoinTest
 import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
+import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
 //UI Testing
 @MediumTest
-class   ReminderListFragmentTest {
+class ReminderListFragmentTest: AutoCloseKoinTest() {
 
     private lateinit var dataSource: ReminderDataSource
-    private lateinit var context: Application
     private val dataBindingIdlingResource = DataBindingIdlingResource()
+    private lateinit var context: Application
+
 
 //    TODO: test the navigation of the fragments.
 //    TODO: test the displayed data on the UI.
 //    TODO: add testing for the error messages.
 
-    @Rule
+    @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Before
     fun setup() {
         stopKoin()
-        //context = getApplicationContext()
+        context = ApplicationProvider.getApplicationContext()
 
         val appMudule = module {
             viewModel {
@@ -85,11 +89,11 @@ class   ReminderListFragmentTest {
             modules(listOf(appMudule))
         }
 
-        dataSource = GlobalContext.get().koin.get()
-
-        runBlocking {
-            dataSource.deleteAllReminders()
-        }
+//        dataSource = GlobalContext.get().koin.get()
+//
+//        runBlocking {
+//            dataSource.deleteAllReminders()
+//        }
     }
 
     /**
