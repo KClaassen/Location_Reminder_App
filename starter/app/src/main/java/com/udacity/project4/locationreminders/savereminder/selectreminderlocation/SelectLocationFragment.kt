@@ -70,7 +70,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         //call this function after the user confirms on the selected location
         binding.saveButton.setOnClickListener {
-            onLocationSelected(pointOfInterest)
+            onLocationSelected()
         }
 
         // set PoiClickListener in onCreaveView and set value for poi
@@ -151,17 +151,17 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
 
-    private fun onLocationSelected(poi: PointOfInterest) {
+    private fun onLocationSelected() {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
 
        // if (this::pointOfInterest.isInitialized) {
             // check if the variable is not null and use it to set the SaveReminderViewModel variables such as longitude,latitude
-            _viewModel.selectedPOI.value = poi
+            _viewModel.selectedPOI.value = pointOfInterest
             _viewModel.reminderSelectedLocationStr.value = pointOfInterest.name
-            _viewModel.latitude.value = poi.latLng.latitude
-            _viewModel.longitude.value = poi.latLng.longitude
+            _viewModel.latitude.value = pointOfInterest.latLng.latitude
+            _viewModel.longitude.value = pointOfInterest.latLng.longitude
             _viewModel.navigationCommand.value = NavigationCommand.Back
         Log.i("locationSelected", "Location is selected")
 //        } else {
