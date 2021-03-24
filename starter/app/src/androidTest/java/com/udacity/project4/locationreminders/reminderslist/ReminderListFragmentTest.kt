@@ -59,7 +59,6 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
 
     private lateinit var dataSource: ReminderDataSource
     private val dataBindingIdlingResource = DataBindingIdlingResource()
-    private lateinit var context: Application
 
 
 //    TODO: test the navigation of the fragments.
@@ -69,39 +68,12 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    @Before
-    fun setup() {
-        stopKoin()
-        context = ApplicationProvider.getApplicationContext()
-
-        val appMudule = module {
-            viewModel {
-                RemindersListViewModel(
-                    context, get() as ReminderDataSource
-                )
-            }
-            single { RemindersLocalRepository(get()) as ReminderDataSource }
-            single { LocalDB.createRemindersDao(context) }
-        }
-
-        startKoin {
-            androidContext(getApplicationContext())
-            modules(listOf(appMudule))
-        }
-
-//        dataSource = GlobalContext.get().koin.get()
-//
-//        runBlocking {
-//            dataSource.deleteAllReminders()
-//        }
-    }
-
     /**
      * Idling resources tell Espresso that the app is idle or busy. This is needed when operations
      * are not scheduled in the main Looper (for example when executed on a different thread).
      */
     @Before
-    fun registerIdlingResource() {
+    fun registerIdlingResource(): Unit = IdlingRegistry.getInstance().run{
         IdlingRegistry.getInstance().register(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().register(dataBindingIdlingResource)
     }
@@ -110,18 +82,46 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
      * Unregister your Idling Resource so it can be garbage collected and does not leak any memory.
      */
     @After
-    fun unregisterIdlingResource() {
+    fun unregisterIdlingResource(): Unit = IdlingRegistry.getInstance().run {
         IdlingRegistry.getInstance().unregister(EspressoIdlingResource.countingIdlingResource)
         IdlingRegistry.getInstance().unregister(dataBindingIdlingResource)
     }
 
-    val reminder = ReminderDTO(
-        title = "title",
-        description = "desc",
-        location = "loc",
-        latitude = 51.271712,
-        longitude = 5.571989
-    )
+    @Before
+    fun setup() {
+        stopKoin()
+
+        val appMudule = module {
+            viewModel {
+                RemindersListViewModel(
+                    getApplicationContext(),
+                        get() as ReminderDataSource
+                )
+            }
+            single { RemindersLocalRepository(get()) as ReminderDataSource }
+            single { LocalDB.createRemindersDao(getApplicationContext()) }
+        }
+
+        startKoin {
+            androidContext(getApplicationContext())
+            modules(listOf(appMudule))
+        }
+
+        dataSource = GlobalContext.get().koin.get()
+
+        runBlocking {
+            dataSource.deleteAllReminders()
+        }
+    }
+
+    private fun getReminder(): ReminderDTO {
+        return ReminderDTO(
+                title = "title",
+                description = "desc",
+                location = "loc",
+                latitude = 51.271712,
+                longitude = 5.571989)
+    }
 
     @Test
     fun clickOnFab_navigateToSaveReminderFragment() {
@@ -143,7 +143,13 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
 
     @Test
     fun addReminders_showsOnScreen() {
+        val reminder = getReminder()
+        runBlocking {
+            dataSource.saveReminder(reminder)
+        }
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
+
         val navController = Mockito.mock(NavController::class.java)
         scenario.onFragment {
             Navigation.setViewNavController(it.view!!, navController)
@@ -156,11 +162,9 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
 
     @Test
     fun withoutReminders_showNoData() {
-        runBlocking {
-            dataSource.deleteAllReminders()
-        }
-
         val scenario = launchFragmentInContainer<ReminderListFragment>(Bundle.EMPTY, R.style.AppTheme)
+        dataBindingIdlingResource.monitorFragment(scenario)
+
         val navController = Mockito.mock(NavController::class.java)
 
         scenario.onFragment {
