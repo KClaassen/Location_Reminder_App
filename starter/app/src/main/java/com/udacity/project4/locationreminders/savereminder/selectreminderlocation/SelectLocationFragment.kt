@@ -46,6 +46,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var binding: FragmentSelectLocationBinding
     private lateinit var map: GoogleMap
     private lateinit var pointOfInterest: PointOfInterest
+    private val TAG = SelectLocationFragment::class.java.simpleName
 
     override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -76,6 +77,25 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         return binding.root
     }
 
+    private fun setMapStyle(map: GoogleMap) {
+        try {
+            // Customize the styling of the base map using a JSON object defined
+            // in a raw resource file.
+            val success = map.setMapStyle(
+                    MapStyleOptions.loadRawResourceStyle(
+                            requireContext(),
+                            R.raw.map_style
+                    )
+            )
+
+            if (!success) {
+                Log.e(TAG, "Style parsing failed.")
+            }
+        } catch (e: Resources.NotFoundException) {
+            Log.e(TAG, "Can't find style. Error: ", e)
+        }
+    }
+
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
 
@@ -89,9 +109,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
         setMapLongClick(map)
         setPoiClickListener(map)
+        setMapStyle(map)
         enableMyLocation()
-
-        //onLocationSelected()
     }
 
     private fun setMapLongClick(map: GoogleMap) {
