@@ -32,7 +32,7 @@ import org.robolectric.annotation.Config
 class SaveReminderViewModelTest {
 
 
-    //TODO: provide testing to the SaveReminderView and its live data objects
+    // provide testing to the SaveReminderView and its live data objects
     private lateinit var fakeDataSource: FakeDataSource
     private lateinit var saveReminderViewModel: SaveReminderViewModel
 
@@ -92,15 +92,11 @@ class SaveReminderViewModelTest {
     @Test
     fun saveReminder_withoutTitle() = runBlockingTest {
         // Create Reminder without Title
-        val reminder = ReminderDataItem(
-                title = "",
-                description = "desc",
-                location = "loc",
-                latitude = 51.271712,
-                longitude = 5.571989)
+        val reminder = getReminder()
+        reminder.title = ""
 
         // When saving reminder
-        saveReminderViewModel.saveReminder(reminder)
+        saveReminderViewModel.validateAndSaveReminder(reminder)
 
         // Then show Snackbar with message
         Truth.assertThat(saveReminderViewModel.showSnackBarInt.getOrAwaitValue()).isEqualTo(R.string.err_enter_title)

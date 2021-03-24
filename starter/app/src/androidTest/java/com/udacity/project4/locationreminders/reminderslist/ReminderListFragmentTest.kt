@@ -1,23 +1,15 @@
 package com.udacity.project4.locationreminders.reminderslist
 
-import android.app.Application
-import android.content.Context
-import android.os.Build
 import android.os.Bundle
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.ViewAction
-import androidx.test.espresso.ViewAssertion
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -26,15 +18,12 @@ import com.udacity.project4.locationreminders.data.ReminderDataSource
 import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.data.local.LocalDB
 import com.udacity.project4.locationreminders.data.local.RemindersLocalRepository
-import com.udacity.project4.locationreminders.data.local.RemindersLocalRepositoryTest
 import com.udacity.project4.util.DataBindingIdlingResource
 import com.udacity.project4.util.EspressoIdlingResource
-import com.udacity.project4.util.monitorActivity
 import com.udacity.project4.util.monitorFragment
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import org.junit.After
-import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -47,9 +36,7 @@ import org.koin.core.context.stopKoin
 import org.koin.dsl.module
 import org.koin.test.AutoCloseKoinTest
 import org.mockito.Mockito
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import org.robolectric.annotation.Config
 
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
@@ -61,9 +48,9 @@ class ReminderListFragmentTest: AutoCloseKoinTest() {
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
 
-//    TODO: test the navigation of the fragments.
-//    TODO: test the displayed data on the UI.
-//    TODO: add testing for the error messages.
+//  test the navigation of the fragments.
+//  test the displayed data on the UI.
+//  add testing for the error messages.
 
     @get:Rule
     var instantTaskExecutorRule = InstantTaskExecutorRule()

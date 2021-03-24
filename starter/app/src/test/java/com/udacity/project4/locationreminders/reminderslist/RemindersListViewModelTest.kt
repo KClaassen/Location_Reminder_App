@@ -23,7 +23,7 @@ import org.robolectric.annotation.Config
 @ExperimentalCoroutinesApi
 class RemindersListViewModelTest {
 
-    //TODO: provide testing to the RemindersListViewModel and its live data objects
+    // provide testing to the RemindersListViewModel and its live data objects
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
