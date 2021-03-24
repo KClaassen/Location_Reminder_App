@@ -183,7 +183,6 @@ class SaveReminderFragment : BaseFragment() {
     @SuppressLint("MissingPermission")
     private fun addGeofenceForReminder(reminderData: ReminderDataItem) {
         if (reminderData != null) {
-            //val currentGeofenceData = reminderData
 
             val geofence = Geofence.Builder()
                     .setRequestId(reminderData.id)
@@ -203,24 +202,11 @@ class SaveReminderFragment : BaseFragment() {
             val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)
             intent.action = ACTION_GEOFENCE_EVENT
 
-//            val geofencePendingIntent = PendingIntent.getBroadcast(
-//                    requireContext(),
-//                    0,
-//                    intent,
-//                    PendingIntent.FLAG_UPDATE_CURRENT
-//            )
-
             geofencingClient.addGeofences(geofencingRequest, geofencePendingIntent)?.run {
                 addOnSuccessListener {
-//                    Toast.makeText(requireActivity(), R.string.geofences_added,
-//                            Toast.LENGTH_SHORT)
-//                            .show()
-//                    _viewModel.saveReminder(reminderData)
                     Log.i("BroadcastReceiver", "added geofences" + reminderData.latitude + " " + reminderData.longitude)
                 }
                 addOnFailureListener {
-//                    Toast.makeText(requireActivity(), R.string.geofences_not_added,
-//                            Toast.LENGTH_SHORT).show()
                     if ((it.message != null)) {
                         Log.w(TAG, it.message!!)
                     }
@@ -248,10 +234,6 @@ class SaveReminderFragment : BaseFragment() {
             val location = _viewModel.reminderSelectedLocationStr.value
             val latitude = _viewModel.latitude.value
             val longitude = _viewModel.longitude.value
-
-            // Use the user entered reminder details to:
-            // add a geofencing request
-            // save the reminder to the local db
 
             val reminderData = ReminderDataItem(
                 title = title,
