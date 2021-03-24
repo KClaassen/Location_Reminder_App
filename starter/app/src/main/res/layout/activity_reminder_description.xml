@@ -11,7 +11,7 @@
     </data>
 
 
-        <!--TODO: add the design of the reminder details-->
+        <!--add the design of the reminder details-->
 
     <androidx.cardview.widget.CardView
         android:id="@+id/reminderCardView"
